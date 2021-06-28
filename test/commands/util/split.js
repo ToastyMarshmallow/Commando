@@ -15,7 +15,7 @@ module.exports = class SplitCommand extends commando.Command {
 					key: 'length',
 					prompt: 'How many characters long would you like the message to be?',
 					type: 'integer',
-					validate: val => parseInt(val) >= 1
+					validate: val => parseInt(val) >= 1 && parseInt(val) <= 3000
 				}
 			]
 		});

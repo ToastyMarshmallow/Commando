@@ -1,6 +1,7 @@
 const { stripIndents, oneLine } = require('common-tags');
 const Command = require('../base');
 const { disambiguation } = require('../../util');
+const discord = require("discord.js");
 
 module.exports = class HelpCommand extends Command {
 	constructor(client) {
@@ -53,10 +54,13 @@ module.exports = class HelpCommand extends Command {
 
 				const messages = [];
 				try {
-					messages.push(await msg.direct(help));
-					if(msg.channel.type !== 'dm') messages.push(await msg.reply('Sent you a DM with information.'));
+						let embed = new discord.MessageEmbed()
+								.setTitle("Help Menu")
+								.setDescription(help)
+								.setTimestamp(Date.now())
+								.setFooter(`${msg.author.tag}`, msg.author.avatarURL());
+					messages.push(await msg.reply(embed));
 				} catch(err) {
-					messages.push(await msg.reply('Unable to send you the help DM. You probably have DMs disabled.'));
 				}
 				return messages;
 			} else if(commands.length > 15) {
@@ -73,13 +77,15 @@ module.exports = class HelpCommand extends Command {
 		} else {
 			const messages = [];
 			try {
-				messages.push(await msg.direct(stripIndents`
+					let embed = new discord.MessageEmbed()
+							.setTitle("Help Menu")
+							.setDescription(stripIndents`
 					${oneLine`
 						To run a command in ${msg.guild ? msg.guild.name : 'any server'},
 						use ${Command.usage('command', msg.guild ? msg.guild.commandPrefix : null, this.client.user)}.
 						For example, ${Command.usage('prefix', msg.guild ? msg.guild.commandPrefix : null, this.client.user)}.
 					`}
-					To run a command in this DM, simply use ${Command.usage('command', null, null)} with no prefix.
+					To run a command in DMs, simply use ${Command.usage('command', null, null)} with no prefix.
 
 					Use ${this.usage('<command>', null, null)} to view detailed information about a specific command.
 					Use ${this.usage('all', null, null)} to view a list of *all* commands, not just available ones.
@@ -87,17 +93,19 @@ module.exports = class HelpCommand extends Command {
 					__**${showAll ? 'All commands' : `Available commands in ${msg.guild || 'this DM'}`}**__
 
 					${groups.filter(grp => grp.commands.some(cmd => !cmd.hidden && (showAll || cmd.isUsable(msg))))
-						.map(grp => stripIndents`
+									.map(grp => stripIndents`
 							__${grp.name}__
 							${grp.commands.filter(cmd => !cmd.hidden && (showAll || cmd.isUsable(msg)))
-								.map(cmd => `**${cmd.name}:** ${cmd.description}${cmd.nsfw ? ' (NSFW)' : ''}`).join('\n')
-							}
+											.map(cmd => `**${cmd.name}:** ${cmd.description}${cmd.nsfw ? ' (NSFW)' : ''}`).join('\n')
+									}
 						`).join('\n\n')
-					}
-				`, { split: true }));
-				if(msg.channel.type !== 'dm') messages.push(await msg.reply('Sent you a DM with information.'));
+							}
+				`, { split: true })
+							.setTimestamp(Date.now())
+							.setFooter(`${msg.author.tag}`, msg.author.avatarURL());
+				messages.push(await msg.channel.send(embed));
 			} catch(err) {
-				messages.push(await msg.reply('Unable to send you the help DM. You probably have DMs disabled.'));
+					console.log(err);
 			}
 			return messages;
 		}

@@ -27,9 +27,12 @@
 	"types": "./typings/index.d.ts",
 	"dependencies": {
 		"common-tags": "^1.8.0",
+		"discord.js": "^12.5.3",
 		"emoji-regex": "^9.2.0",
 		"is-promise": "^4.0.0",
-		"require-all": "^3.0.0"
+		"require-all": "^3.0.0",
+		"sqlite": "^4.0.23",
+		"sqlite3": "^5.0.2"
 	},
 	"devDependencies": {
 		"@types/node": "^12.7.3",
