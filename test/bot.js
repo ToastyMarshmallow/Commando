@@ -6,7 +6,8 @@ const sqlite = require('sqlite');
 const token = require('./auth').token;
 
 const client = new commando.Client({
-	commandPrefix: 'cdev'
+	commandPrefix: 'cdev',
+		owner: "742976057761726514"
 });
 
 client

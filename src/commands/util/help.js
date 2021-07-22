@@ -35,6 +35,13 @@ module.exports = class HelpCommand extends Command {
 		const showAll = args.command && args.command.toLowerCase() === 'all';
 		if (groups[0] && !showAll){
 				const group = groups[0];
+				let commands = Array.from(group.commands.values());
+				let commandNames = commands.map(x => x.name);
+				const index = commandNames.indexOf("unknown-command");
+				if (index > -1) {
+						commandNames.splice(index, 1);
+				}
+				let str = commandNames.join("\n");
 				let embed = new discord.MessageEmbed()
 						.setTitle("Help Menu")
 						.setTimestamp(Date.now())
@@ -48,7 +55,7 @@ module.exports = class HelpCommand extends Command {
 					To run a command in DMs, simply use ${Command.usage('command', null, null)} with no prefix.\n
 					
 					**__${group.name.charAt(0).toUpperCase() + group.name.slice(1).toLowerCase()}__**
-					${Array.from(group.commands.values()).map(x => x.name).join("\n")}
+					${str}
 					`);
 				return await msg.channel.send(embed);
 		}
