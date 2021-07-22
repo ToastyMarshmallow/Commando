@@ -21,7 +21,7 @@ module.exports = class HelpCommand extends Command {
 			args: [
 				{
 					key: 'command',
-					prompt: 'Which command would you like to view the help for?',
+					prompt: 'Which command or group would you like to view the help for?',
 					type: 'string',
 					default: ''
 				}
@@ -30,9 +30,28 @@ module.exports = class HelpCommand extends Command {
 	}
 
 	async run(msg, args) { // eslint-disable-line complexity
-		const groups = this.client.registry.groups;
 		const commands = this.client.registry.findCommands(args.command, false, msg);
+		const groups = this.client.registry.findGroups(args.command, false);
 		const showAll = args.command && args.command.toLowerCase() === 'all';
+		if (groups[0] && !showAll){
+				const group = groups[0];
+				let embed = new discord.MessageEmbed()
+						.setTitle("Help Menu")
+						.setTimestamp(Date.now())
+						.setFooter(`${msg.author.tag}`, msg.author.avatarURL())
+						.setDescription(stripIndents`
+					${oneLine`
+						To run a command in ${msg.guild ? msg.guild.name : 'any server'},
+						use ${Command.usage('command', msg.guild ? msg.guild.commandPrefix : null, this.client.user)}.
+						For example, ${Command.usage('prefix', msg.guild ? msg.guild.commandPrefix : null, this.client.user)}.
+					`}
+					To run a command in DMs, simply use ${Command.usage('command', null, null)} with no prefix.\n
+					
+					**__${group.name.charAt(0).toUpperCase() + group.name.slice(1).toLowerCase()}__**
+					${Array.from(group.commands.values()).map(x => x.name).join("\n")}
+					`);
+				return await msg.channel.send(embed);
+		}
 		if(args.command && !showAll) {
 			if(commands.length === 1) {
 				let help = stripIndents`
@@ -77,6 +96,7 @@ module.exports = class HelpCommand extends Command {
 		} else {
 			const messages = [];
 			try {
+					const groups = this.client.registry.groups;
 					let embed = new discord.MessageEmbed()
 							.setTitle("Help Menu")
 							.setDescription(stripIndents`
